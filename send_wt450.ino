@@ -1,4 +1,11 @@
-//    The following information is an abbreviated of the content from
+//    WT450 Emulator
+//
+//    Send WT450 protocol packets through an RF transmitter.
+//
+//    Thanks to Jaakko Ala-Paavola and colleagues for sharing
+//    the protocol information and packet content for the WT450.
+//
+//    The following information is an abbreviated version of material from
 //    http://ala-paavola.fi/jaakko/doku.php?id=wt450h
 //
 //    +---+   +---+   +-------+       +  high
