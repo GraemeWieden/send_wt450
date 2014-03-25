@@ -46,10 +46,10 @@
 //   it turns out that it's a simple even parity bit. This has the added
 //   benefit of leaving the transmission in a low state at the end of the
 //   final bit. To 'complete' the packet, a 500 μs pulse is sent.
-//   I also think the 1100 preamble could be used to allow devices to 
+//   I also believe the 1100 preamble could be used to allow devices to 
 //   determine the pulse durations for long and short pulses.
 
-// note that arduino has a max of 16383 for delayMicroseconds function
+// note that arduino has a max of 16383 for the delayMicroseconds function
 int wrt450TriggerPulse = 15000; // trigger time in microseconds
 int wrt450ShortPulse = 1000; // time in microseconds for a short pulse
 int wrt450LongPulse = 2000; // time in microseconds for a long pulse
@@ -62,7 +62,7 @@ int txPort = 9; // digital pin for transmitter
 boolean pulseState; // start with a high pulse and toggle whenever we send a '0'
 boolean parityBit; // used maintain the parity state as we send bits in the packet
 
-int testHum = 14;
+int testHum = 0;
 float testTemp = 0;
 
 void setup()
@@ -71,9 +71,15 @@ void setup()
 
 void loop()
 {
-  sendWRT450Packet(7, 4, testHum++, testTemp);
-  testTemp += 1.3;
-  delay(3000);
+  sendWRT450Packet(7, 4, testHum, testTemp);
+  testHum++;
+  testTemp += 1.3; // just an arbitrary increment to test floating points
+  
+  // loop the test values at 100
+  testHum = (testHum > 100 ? 0 : testHum);
+  testTemp = (testTemp > 100 ? 0 : testTemp);
+  
+  delay(5000);
 }
 
 void sendWRT450Packet(int house, int channel, int humidity, float temperature)
