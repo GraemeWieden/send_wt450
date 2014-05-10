@@ -50,9 +50,9 @@
 //   determine the pulse durations for long and short pulses.
 
 // note that arduino has a max of 16383 for the delayMicroseconds function
-int wrt450TriggerPulse = 15000; // trigger time in microseconds
-int wrt450ShortPulse = 1000; // time in microseconds for a short pulse
-int wrt450LongPulse = 2000; // time in microseconds for a long pulse
+int wt450TriggerPulse = 15000; // trigger time in microseconds
+int wt450ShortPulse = 1000; // time in microseconds for a short pulse
+int wt450LongPulse = 2000; // time in microseconds for a long pulse
 
 int txPort = 9; // digital pin for transmitter
 
@@ -71,7 +71,7 @@ void setup()
 
 void loop()
 {
-  sendWRT450Packet(7, 4, testHum, testTemp);
+  sendWT450Packet(15, 4, testHum, testTemp);
   testHum++;
   testTemp += 1.3; // just an arbitrary increment to test floating points
   
@@ -82,7 +82,7 @@ void loop()
   delay(5000);
 }
 
-void sendWRT450Packet(int house, int channel, int humidity, float temperature)
+void sendWT450Packet(int house, int channel, int humidity, float temperature)
 {
   unsigned int convertedTemperature = (temperature * 128.0) + 6400;
   int convertedChannel = channel - 1;
@@ -90,68 +90,68 @@ void sendWRT450Packet(int house, int channel, int humidity, float temperature)
   
   for(int i = 0; i < repeats; i++)
   {
-    sendWRT450Start();
-    sendWRT450Bits(B1100, 4); // always 1100
-    sendWRT450Bits(house, 4); // house 1 stored as 0001
-    sendWRT450Bits(convertedChannel, 2); // channel 1 stored as 00
-    sendWRT450Bits(B110, 3); // always 110
-    sendWRT450Bits(humidity, 7); // humidity
-    sendWRT450Bits(convertedTemperature, 15); // encoded temperature
-    sendWRT450Bits(parityBit, 1); // parity
-    sendWRT450End();
+    sendWT450Start();
+    sendWT450Bits(B1100, 4); // always 1100
+    sendWT450Bits(house, 4); // house 1 stored as 0001
+    sendWT450Bits(convertedChannel, 2); // channel 1 stored as 00
+    sendWT450Bits(B110, 3); // always 110
+    sendWT450Bits(humidity, 7); // humidity
+    sendWT450Bits(convertedTemperature, 15); // encoded temperature
+    sendWT450Bits(parityBit, 1); // parity
+    sendWT450End();
   }
 }
 
-void sendWRT450Start()
+void sendWT450Start()
 {
   parityBit = 0;
   digitalWrite(txPort, LOW);
-  delayMicroseconds(wrt450TriggerPulse);    
-  delayMicroseconds(wrt450TriggerPulse); // send twice as delayMicroseconds has a max of 16383
+  delayMicroseconds(wt450TriggerPulse);    
+  delayMicroseconds(wt450TriggerPulse); // send twice as delayMicroseconds has a max of 16383
   pulseState = HIGH; // next pulse state to use
 }
 
-void sendWRT450End()
+void sendWT450End()
 {
   // if the last pulse was low (next is high) we need to send a half short high pulse to complete the packet
   // note that this should always be the case because of the even parity bit
   if(pulseState == HIGH)
   {
     digitalWrite(txPort, HIGH);
-    delayMicroseconds(wrt450ShortPulse >> 1);
+    delayMicroseconds(wt450ShortPulse >> 1);
   }
   digitalWrite(txPort, LOW);
-  delayMicroseconds(wrt450TriggerPulse);  
-  delayMicroseconds(wrt450TriggerPulse);  
+  delayMicroseconds(wt450TriggerPulse);  
+  delayMicroseconds(wt450TriggerPulse);  
 }
 
-void sendWRT450Bits(unsigned int data, int bits)
+void sendWT450Bits(unsigned int data, int bits)
 {
   unsigned int bitMask = 1;
   bitMask = bitMask << (bits - 1);
   for(int i = 0; i < bits; i++)
   {
-    sendWRT450Bit( (data&bitMask) == 0 ? 0 : 1);
+    sendWT450Bit( (data&bitMask) == 0 ? 0 : 1);
     bitMask = bitMask >> 1;
   }
 }
 
-void sendWRT450Bit(byte b)
+void sendWT450Bit(byte b)
 {
   // single long pulse = '0'
   if(b == 0)
   {
     digitalWrite(txPort, pulseState);
-    delayMicroseconds(wrt450LongPulse);  
+    delayMicroseconds(wt450LongPulse);  
     pulseState = !pulseState;
   }
   // short pulse then short pulse = '1'
   else
   {
     digitalWrite(txPort, pulseState);
-    delayMicroseconds(wrt450ShortPulse);
+    delayMicroseconds(wt450ShortPulse);
     digitalWrite(txPort, !pulseState);
-    delayMicroseconds(wrt450ShortPulse);  
+    delayMicroseconds(wt450ShortPulse);  
     // pulseState will be unchanged after two pulses
     parityBit = !parityBit;
   }
